@@ -6,7 +6,7 @@ services:
       - '80:80'
     volumes:
       - './.docker/nginx/nginx.conf:/etc/nginx/nginx.conf'
-      - './.public:/app/public'
+      - './public:/app/public'
     depends_on:
       - app
 
@@ -33,12 +33,29 @@ services:
     volumes:
       - './storage/mysql:/var/lib/mysql'
     environment:
+      # MYSQL_DATABASE: laravel
+      # MYSQL_USER: root
+      # MYSQL_PASSWORD: secret
+      # MYSQL_ROOT_PASSWORD: secret
+
       MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-      MYSQL_USER: ${DB_USERNAME:-user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-root}
+      # MYSQL_USER: ${DB_USERNAME:-user}
+      # MYSQL_PASSWORD: ${DB_PASSWORD:-root}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
 
   redis:
     image: redis:6.0-alpine
     ports:
       - '6379:6379'
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOSTS: mysql
+      PMA_USER: ${DB_USERNAME:-root}
+      PMA_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - '9090:80'
